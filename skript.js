@@ -1,5 +1,5 @@
 const canvas = document.getElementById("gradientCanvas");
-    const ctx = canvas.getContext("2d");
+    const canvasContext = canvas.getContext("2d");
 
     // Canvas-Größe an Fenster anpassen
     function resizeCanvas() {
@@ -24,19 +24,19 @@ const canvas = document.getElementById("gradientCanvas");
 
     // Einzelnen Farb-Blob zeichnen
     function drawBlob(x, y, radius, color) {
-      const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+      const gradient = canvasContext.createRadialGradient(x, y, 0, x, y, radius); 
       gradient.addColorStop(0, color);
       gradient.addColorStop(1, "transparent");
 
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fill();
-    }       
+      canvasContext.fillStyle = gradient; 
+      canvasContext.beginPath(); 
+      canvasContext.arc(x, y, radius, 0, Math.PI * 2); 
+      canvasContext.fill(); 
+    }
 
     // Mehrere zufällige Blobs auf dem Canvas verteilen
     function drawColorfulGradient() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvasContext.clearRect(0, 0, canvas.width, canvas.height); 
 
       const blobCount = 15; // Anzahl der Blobs
 
@@ -55,7 +55,7 @@ const canvas = document.getElementById("gradientCanvas");
 
     // Leichten "Grain" Effekt hinzufügen
     function drawGrain(opacity = 0.08) {
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height); 
       const data = imageData.data;
 
       for (let i = 0; i < data.length; i += 4) {
@@ -66,28 +66,26 @@ const canvas = document.getElementById("gradientCanvas");
         // Alpha bleibt erhalten
       }
 
-      ctx.putImageData(imageData, 0, 0);
+      canvasContext.putImageData(imageData, 0, 0); // Using canvasContext
     }
 
     // Tasten-Status speichern
     let isSpacePressed = false;
-    let isInverted = false;
+    let isInverted = false; // This variable will no longer be toggled by a key press
 
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') isSpacePressed = true; // Space drücken → verzerren aktiv
-      if (e.code === 'KeyZ') isInverted = true;       // Z drücken → Umkehrmodus aktiv
+      if (e.code === 'Space') isSpacePressed = true; // Space drücken → aktives verzerren
     });
 
     window.addEventListener('keyup', (e) => {
       if (e.code === 'Space') isSpacePressed = false; // Space loslassen
-      if (e.code === 'KeyZ') isInverted = false;       // Z loslassen
     });
 
     // Verzerrungseffekt (Magnet-Effekt)
     function distortAroundMouse(radius = 100, strength = 0.2) {
       if (!originalImageData) return;
 
-      const newImageData = ctx.createImageData(originalImageData);
+      const newImageData = canvasContext.createImageData(originalImageData);
       const src = originalImageData.data;
       const dst = newImageData.data;
 
@@ -103,11 +101,7 @@ const canvas = document.getElementById("gradientCanvas");
           if (dist < radius) {
             const pullFactor = (1 - dist / radius) * strength;
 
-            if (isInverted) {
-              // Umgekehrter Effekt → Pixel ANziehen
-              srcX = Math.floor(x + dx * pullFactor);
-              srcY = Math.floor(y + dy * pullFactor);
-            } else {
+            if (isSpacePressed) {
               // Normaler Effekt → Pixel WEGziehen
               srcX = Math.floor(x - dx * pullFactor);
               srcY = Math.floor(y - dy * pullFactor);
@@ -130,7 +124,7 @@ const canvas = document.getElementById("gradientCanvas");
       }
 
       // Neues Bild auf das Canvas setzen
-      ctx.putImageData(newImageData, 0, 0);
+      canvasContext.putImageData(newImageData, 0, 0); 
     }
 
     // Gesamtes Rendering (Blobs + Grain)
@@ -138,7 +132,7 @@ const canvas = document.getElementById("gradientCanvas");
       drawColorfulGradient();
       drawGrain();
       // Ursprungsbild speichern
-      originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      originalImageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height); 
     }
 
     // Animationsschleife
@@ -148,7 +142,7 @@ const canvas = document.getElementById("gradientCanvas");
       if (isSpacePressed) {
         // Nur wenn Space gedrückt wird verzerren
         distortAroundMouse(100, 0.2);
-        originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height); // neue Basis nach Verzerrung speichern
+        originalImageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height); // neue Basis nach Verzerrung speichern
       }
     }
 

@@ -22,6 +22,12 @@ const canvas = document.getElementById("gradientCanvas");
     // Ursprüngliches Bild (für Verzerrungseffekte)
     let originalImageData = null;
 
+    // Slider-Elemente
+    const grainSlider = document.getElementById('grainSlider');
+    const blobSlider = document.getElementById('blobSlider');
+
+
+    
     // Einzelnen Farb-Blob zeichnen
     function drawBlob(x, y, radius, color) {
       const gradient = canvasContext.createRadialGradient(x, y, 0, x, y, radius); 
@@ -35,12 +41,10 @@ const canvas = document.getElementById("gradientCanvas");
     }
 
     // Mehrere zufällige Blobs auf dem Canvas verteilen
-    function drawColorfulGradient() {
+    function drawColorfulGradient(blobCount) { // Nimmt blobCount als Parameter
       canvasContext.clearRect(0, 0, canvas.width, canvas.height); 
 
-      const blobCount = 15; // Anzahl der Blobs
-
-      for (let i = 0; i < blobCount; i++) {
+      for (let i = 0; i < blobCount; i++) { 
         const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
         const x = Math.random() * canvas.width;
         const y = Math.random() * canvas.height;
@@ -54,31 +58,31 @@ const canvas = document.getElementById("gradientCanvas");
     }
 
     // Leichten "Grain" Effekt hinzufügen
-    function drawGrain(opacity = 0.08) {
+    function drawGrain(strength) { // Nimmt strength als Parameter
       const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height); 
       const data = imageData.data;
 
       for (let i = 0; i < data.length; i += 4) {
-        const grain = Math.random() * 10;
+        const grain = Math.random() * strength; 
         data[i] += grain;     // Rot
         data[i + 1] += grain; // Grün
         data[i + 2] += grain; // Blau
         // Alpha bleibt erhalten
       }
 
-      canvasContext.putImageData(imageData, 0, 0); // Using canvasContext
+      canvasContext.putImageData(imageData, 0, 0); 
     }
 
     // Tasten-Status speichern
     let isSpacePressed = false;
-    let isInverted = false; // This variable will no longer be toggled by a key press
+    let isInverted = false; 
 
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') isSpacePressed = true; // Space drücken → aktives verzerren
+      if (e.code === 'Space') isSpacePressed = true; 
     });
 
     window.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') isSpacePressed = false; // Space loslassen
+      if (e.code === 'Space') isSpacePressed = false; 
     });
 
     // Verzerrungseffekt (Magnet-Effekt)
@@ -102,20 +106,17 @@ const canvas = document.getElementById("gradientCanvas");
             const pullFactor = (1 - dist / radius) * strength;
 
             if (isSpacePressed) {
-              // Normaler Effekt → Pixel WEGziehen
               srcX = Math.floor(x - dx * pullFactor);
               srcY = Math.floor(y - dy * pullFactor);
             }
           }
 
-          // Grenzen prüfen (Canvas-Rand nicht überschreiten)
           srcX = Math.max(0, Math.min(canvas.width - 1, srcX));
           srcY = Math.max(0, Math.min(canvas.height - 1, srcY));
 
           const srcIndex = (srcY * canvas.width + srcX) * 4;
           const dstIndex = (y * canvas.width + x) * 4;
 
-          // Farbwerte kopieren
           dst[dstIndex]     = src[srcIndex];
           dst[dstIndex + 1] = src[srcIndex + 1];
           dst[dstIndex + 2] = src[srcIndex + 2];
@@ -123,15 +124,13 @@ const canvas = document.getElementById("gradientCanvas");
         }
       }
 
-      // Neues Bild auf das Canvas setzen
       canvasContext.putImageData(newImageData, 0, 0); 
     }
 
     // Gesamtes Rendering (Blobs + Grain)
-    function render() {
-      drawColorfulGradient();
-      drawGrain();
-      // Ursprungsbild speichern
+    function render(grainStrength, blobCount) { // Nimmt nun die Werte als Parameter
+      drawColorfulGradient(blobCount);
+      drawGrain(grainStrength);
       originalImageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height); 
     }
 
@@ -140,17 +139,19 @@ const canvas = document.getElementById("gradientCanvas");
       requestAnimationFrame(animate);
 
       if (isSpacePressed) {
-        // Nur wenn Space gedrückt wird verzerren
         distortAroundMouse(100, 0.2);
-        originalImageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height); // neue Basis nach Verzerrung speichern
+        originalImageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height); 
       }
     }
 
     // Button "Regenerate" → neuen Hintergrund generieren
     document.getElementById('regenButton').addEventListener('click', () => {
-      render();
+      // Beim Klick auf Regenerate die aktuellen Slider-Werte auslesen
+      const currentGrainStrength = parseFloat(grainSlider.value);
+      const currentBlobCount = parseInt(blobSlider.value);
+      render(currentGrainStrength, currentBlobCount); // Mit den ausgelesenen Werten rendern
     });
 
-    // Beim Start einmal rendern
-    render();
+    // Beim Start einmal rendern mit den Initialwerten der Slider
+    render(parseFloat(grainSlider.value), parseInt(blobSlider.value));
     animate();

@@ -4,9 +4,20 @@
   <meta charset="UTF-8" />
   <title>Random Colorful Grain Gradient</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.1/p5.js"></script> -->
 </head>
 <body>
   <button id="regenButton">Regenerate</button>
+  
+  <div class="slider-container">
+    <label for="grainSlider">Grain Stärke: <span id="grainValue"></span></label>
+    <input type="range" id="grainSlider" min="0" max="30" value="8">
+  </div>
+
+  <div class="slider-container">
+    <label for="blobSlider">Anzahl Blobs: <span id="blobValue"></span></label>
+    <input type="range" id="blobSlider" min="5" max="25" value="15"> 
+  </div>
   
   <canvas id="gradientCanvas"></canvas>
 

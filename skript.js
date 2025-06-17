@@ -58,7 +58,7 @@ const canvas = document.getElementById("gradientCanvas");
     }
 
     // Leichten "Grain" Effekt hinzufügen
-    function drawGrain(strength) { // Nimmt strength als Parameter
+    function drawGrain(strength) { 
       const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height); 
       const data = imageData.data;
 
@@ -67,7 +67,6 @@ const canvas = document.getElementById("gradientCanvas");
         data[i] += grain;     // Rot
         data[i + 1] += grain; // Grün
         data[i + 2] += grain; // Blau
-        // Alpha bleibt erhalten
       }
 
       canvasContext.putImageData(imageData, 0, 0); 
@@ -128,7 +127,7 @@ const canvas = document.getElementById("gradientCanvas");
     }
 
     // Gesamtes Rendering (Blobs + Grain)
-    function render(grainStrength, blobCount) { // Nimmt nun die Werte als Parameter
+    function render(grainStrength, blobCount) {
       drawColorfulGradient(blobCount);
       drawGrain(grainStrength);
       originalImageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height); 
